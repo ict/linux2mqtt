@@ -7,8 +7,7 @@ from configparser import ConfigParser, NoSectionError, NoOptionError
 class Settings:
     def __init__(self):
         self.parser = argparse.ArgumentParser()
-        # self.parser.add_argument("--config", help="configuration file", default="/etc/linux2mqtt.conf")
-        self.parser.add_argument("--config", help="configuration file", default="linux2mqtt.conf")
+        self.parser.add_argument("-c", "--config", help="configuration file", default="/etc/linux2mqtt.conf")
         self.args = self.parser.parse_args()
         if not os.path.exists(self.args.config):
             sys.stderr.write(f"Configuration file {self.args.config} not found.\n")
