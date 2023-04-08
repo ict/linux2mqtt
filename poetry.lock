@@ -103,18 +103,7 @@ files = [
 [package.extras]
 dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 
-[[package]]
-name = "yapsy"
-version = "1.12.2"
-description = "Yet another plugin system"
-category = "main"
-optional = false
-python-versions = "*"
-files = [
-    {file = "Yapsy-1.12.2.tar.gz", hash = "sha256:d8113d9f9c74eacf65b4663c9c037d278c9cb273b5eee5f0e1803baeedb23f8b"},
-]
-
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "93e67abf70c438b00d536eea636bfa62beb0fa39a3518e97c0ea188138381e2d"
+content-hash = "25b4975fc6d12bdcf13afc7feb86106593b80de2bfeef4747a66c1a837d96cb3"

@@ -7,7 +7,6 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-yapsy = "^1.12.2"
 loguru = "^0.6.0"
 sensors = {git = "https://github.com/bastienleonard/pysensors.git"}
 psutil = "^5.9.4"
