@@ -1,0 +1,15 @@
+# A unit file to start the service at system boot
+# using the poetry environment
+
+[Unit]
+Description=Linux2MQTT client
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/home/ict/code/linux2mqtt/.venv/bin/python /home/ict/code/linux2mqtt/main.py -c /home/ict/code/linux2mqtt/linux2mqtt.conf
+WorkingDirectory=/home/ict/code/linux2mqtt
+Restart=always
+
+[Install]
+WantedBy=default.target

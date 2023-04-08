@@ -1,0 +1,24 @@
+[mqtt]
+server = 127.0.0.1
+port = 1883
+user = username
+password = password
+topic = linux2mqtt
+homeassistant = True
+
+[client]
+name = myhost
+update_interval = 30
+
+[commands]
+enable = True
+sub_topic = commands
+suspend = True
+poweroff = True
+
+[sensors]
+enable = True
+sub_topic = sensors
+cpu_temp = True
+cpu_temp_sensor = coretemp-isa-0000:Package id 0:temp1_input
+cpu_usage = True
