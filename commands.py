@@ -75,7 +75,7 @@ class LinuxCommands(MQTTConsumer):
 
     def do_suspend(self):
         self.runtime.on_suspend()
-        subprocess.call("systemctl suspend")
+        subprocess.call(["systemctl", "suspend"])
         time.sleep(10)
         logger.info("System resumed")
         self.runtime.on_resume()

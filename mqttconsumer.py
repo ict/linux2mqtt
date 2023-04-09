@@ -50,8 +50,7 @@ class MQTTConsumer(ABC):
         DO NOT OVERRIDE
         """
         self.on_connect(mqtt_client)
-        for topic in self.availability_topics:
-            mqtt_client.publish(topic, "online", retain=True)
+        self.set_online(mqtt_client)
 
     def disconnect(self, mqtt_client):
         """
@@ -59,10 +58,9 @@ class MQTTConsumer(ABC):
         DO NOT OVERRIDE
         """
         self.on_disconnect(mqtt_client)
-        for topic in self.availability_topics:
-            mqtt_client.publish(topic, "offline", retain=True)
+        self.set_offline(mqtt_client)
 
-    def suspending(self, mqtt_client):
+    def set_offline(self, mqtt_client):
         """
         Called when the computer is about to suspend.
         DO NOT OVERRIDE
@@ -71,7 +69,7 @@ class MQTTConsumer(ABC):
             result = mqtt_client.publish(topic, "offline", retain=True)
             result.wait_for_publish()
 
-    def resuming(self, mqtt_client):
+    def set_online(self, mqtt_client):
         """
         Called when the computer resumes from suspend.
         DO NOT OVERRIDE

@@ -37,8 +37,6 @@ class Linux2MQTT:
         self.running = True
         self._mqtt_connect()
         self.mqtt_client.loop_start()
-        for consumer in self.consumers:
-            consumer.connected(self.mqtt_client)
         try:
             while self.running:
                 for consumer in self.consumers:
@@ -50,18 +48,22 @@ class Linux2MQTT:
 
     def on_suspend(self):
         for consumer in self.consumers:
-            consumer.suspending(self.mqtt_client)
+            consumer.set_offline(self.mqtt_client)
 
     def on_poweroff(self):
         self.running = False
 
     def on_resume(self):
+        # This will most likely fail, but if we are not disconnected we set the availability here
+        # If we were disconnected while suspended, we will reconnect and set the availability in the callback
         for consumer in self.consumers:
-            consumer.resuming(self.mqtt_client)
+            consumer.set_online(self.mqtt_client)
 
     def _on_mqtt_connect(self, client, userdata, flags, result_code):
         if result_code == 0:
             logger.info("Connected to MQTT server")
+            for consumer in self.consumers:
+                consumer.connected(self.mqtt_client)
         else:
             # Find the error message from the result code
             error_message = mqtt.connack_string(result_code)
