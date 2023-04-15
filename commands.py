@@ -28,10 +28,6 @@ class MQTTButton:
     def command_topic(self):
         return f"{self.base_topic}/set"
 
-    @property
-    def availability_topic(self):
-        return f"{self.base_topic}/availability"
-
 
 class LinuxCommands(MQTTConsumer):
     def __init__(self, config: Settings, runtime: Linux2MQTT):
@@ -40,6 +36,7 @@ class LinuxCommands(MQTTConsumer):
         self.runtime = runtime
         self.will_suspend = False
         self.will_poweroff = False
+        self.availability_topic = runtime.availability_topic
         head_topic = self.config.get("mqtt", "topic", "linux2mqtt")
         self.client_name = self.config.get("client", "name", socket.gethostname())
         our_topic = self.config.get("commands", "sub_topic", "commands")
@@ -61,7 +58,7 @@ class LinuxCommands(MQTTConsumer):
         self.will_poweroff = True
 
     def do_poweroff(self):
-        self.runtime.on_poweroff()
+        self.runtime.on_exit()
         # Execute the poweroff command in a subprocess after some waiting
         # This is to give the MQTT broker time to send the last will message
         logger.info("Powering off")
@@ -92,21 +89,19 @@ class LinuxCommands(MQTTConsumer):
                 "icon": button.icon,
                 "device": {"identifiers": [self.client_name], "name": self.client_name, "model": "Linux2MQTT"},
                 "unique_id": f"{self.client_name}_{button.name}_button",
-                "availability": {"topic": f"{button.availability_topic}"},
+                "availability": {"topic": f"{self.availability_topic}"},
             }
             mqtt_client.publish(homeassistant_topic, json.dumps(homeassistant_message), retain=True)
             # Subscribe and set the callback to handle button presses
             mqtt_client.subscribe(button.command_topic)
             mqtt_client.message_callback_add(button.command_topic, self._on_button_press)
             logger.info(f"Registered button {button.name} on topic {button.command_topic}")
-            self.register_availability_topic(button.availability_topic)
 
     def on_disconnect(self, mqtt_client):
-        # Set the availability topics of all buttons to offline
         for button in self.buttons:
             mqtt_client.unsubscribe(button.command_topic)
             mqtt_client.message_callback_remove(button.command_topic)
-            # Availability topic is set to offline in the MQTTConsumer base class
+            # Availability topic is set to offline globally
 
     def update_mqtt(self, mqtt_client):
         # Nothing to publish, but:

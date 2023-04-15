@@ -38,19 +38,12 @@ class MQTTConsumer(ABC):
         """
         pass
 
-    def register_availability_topic(self, topic):
-        """
-        Use this to register the availability topic for this consumer.
-        """
-        self.availability_topics.append(topic)
-
     def connected(self, mqtt_client):
         """
         Called when the MQTT client connects to the server.
         DO NOT OVERRIDE
         """
         self.on_connect(mqtt_client)
-        self.set_online(mqtt_client)
 
     def disconnect(self, mqtt_client):
         """
@@ -58,21 +51,3 @@ class MQTTConsumer(ABC):
         DO NOT OVERRIDE
         """
         self.on_disconnect(mqtt_client)
-        self.set_offline(mqtt_client)
-
-    def set_offline(self, mqtt_client):
-        """
-        Called when the computer is about to suspend.
-        DO NOT OVERRIDE
-        """
-        for topic in self.availability_topics:
-            result = mqtt_client.publish(topic, "offline", retain=True)
-            result.wait_for_publish()
-
-    def set_online(self, mqtt_client):
-        """
-        Called when the computer resumes from suspend.
-        DO NOT OVERRIDE
-        """
-        for topic in self.availability_topics:
-            mqtt_client.publish(topic, "online", retain=True)

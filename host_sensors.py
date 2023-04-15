@@ -29,16 +29,13 @@ class MQTTSensor:
     def state_topic(self):
         return f"{self.publish_topic}"
 
-    @property
-    def availability_topic(self):
-        return f"{self.publish_topic}/availability"
-
 
 class HostSensors(MQTTConsumer):
     def __init__(self, config: Settings, runtime: Linux2MQTT):
         super().__init__(config, runtime)
         self.config = config
         self.sensors = []
+        self.availability_topic = runtime.availability_topic
         head_topic = self.config.get("mqtt", "topic", "linux2mqtt")
         client = self.config.get("client", "name", socket.gethostname())
         subtopic = self.config.get("sensors", "sub_topic", "sensors")
@@ -148,14 +145,13 @@ class HostSensors(MQTTConsumer):
                 "value_template": sensor.value_template,
                 "unique_id": f"{client_name}_{sensor.name}",
                 "device": {"identifiers": [client_name], "name": client_name, "model": "Linux2MQTT"},
-                "availability_topic": sensor.availability_topic,
+                "availability_topic": self.availability_topic,
             }
             mqtt_client.publish(topic, json.dumps(payload), retain=True)
-            self.register_availability_topic(sensor.availability_topic)
 
     def on_disconnect(self, mqtt_client):
         # Delete the data we have written as it will become stale very quickly
-        # Availability will be set to offline by the base class
+        # Availability will be set to offline globally
         for sensor in self.sensors:
             mqtt_client.publish(sensor.state_topic, "")
 
