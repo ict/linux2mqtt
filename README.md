@@ -18,6 +18,9 @@ You can reference the output of the example code from `pysensors`
 ### CPU usage
 This sensor publishes the current CPU usage as reported by the `psutil` library.
 
+### X server idle time
+This sensor publishes the idle time of the X server as reported by the `xprintidle` command, in seconds.
+
 ## Commands
 
 The possibility to suspend or power off the system is provided by a command topic.

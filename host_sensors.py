@@ -1,6 +1,7 @@
 from __future__ import annotations
 import socket
 import json
+import subprocess
 
 from dataclasses import dataclass
 from loguru import logger
@@ -67,8 +68,27 @@ class HostSensors(MQTTConsumer):
                     f"{client.title()} CPU Usage",
                 )
             )
+        if self.config.get("sensors", "x_idle", "false").lower() == "true" and self._xprintidle_exists():
+            self.sensors.append(
+                MQTTSensor(
+                    "x_idle",
+                    f"{self.publish_topic}/x_idle",
+                    "s",
+                    "{{ value | int }}",
+                    self._get_x_idle,
+                    f"{client.title()} X Server Idle Time",
+                )
+            )
 
         self.first_cpu_percent = True
+
+    def _xprintidle_exists(self):
+        try:
+            subprocess.check_output(["which", "xprintidle"])
+            return True
+        except:
+            logger.warning("xprintidle not found. Install xprintidle to get X server idle time.")
+            return False
 
     def __del__(self):
         sensors.cleanup()
@@ -126,6 +146,16 @@ class HostSensors(MQTTConsumer):
             self.first_cpu_percent = False
             return None
         return cpu_usage
+
+    def _get_x_idle(self):
+        try:
+            output = subprocess.check_output(["xprintidle"]).strip()
+        except Exception as e:
+            logger.error(f"Error reading xprintidle: {e}")
+            return
+        idle = int(output) / 1000
+        logger.debug(f"X server idle: {idle} s")
+        return idle
 
     def on_connect(self, mqtt_client):
         # We do not need to subscribe to any topics, but we need to publish the homeassistant metadata if enabled
