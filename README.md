@@ -7,19 +7,22 @@ The tool was written with the intention to be used with Home Assistant and it wi
 metadata to be used with the MQTT Discovery feature.
 
 ## Sensors
-Currently there are two sensors:
+This is a list of the sensors that are currently implemented:
 
 ### CPU temperature
-This sensor publishes the current CPU temperature as reported by the `sensors` command. The sensor to use
+Publishes the current CPU temperature as reported by the `sensors` command. The sensor to use
 needs to be specified in the configuration file as `chip:feature:subfeature` (e.g. `coretemp-isa-0000:Core 0:Tdie`).
 You can reference the output of the example code from `pysensors`
 (linked [here](https://github.com/bastienleonard/pysensors/blob/master/examples/dump.py)) to find the correct values.
 
 ### CPU usage
-This sensor publishes the current CPU usage as reported by the `psutil` library.
+Publishes the current CPU usage as reported by the `psutil` library.
 
 ### X server idle time
-This sensor publishes the idle time of the X server as reported by the `xprintidle` command, in seconds.
+Publishes the idle time of the X server as reported by the `xprintidle` command, in seconds.
+
+### X server active window
+Publishes the active window of the X server as well as the process that owns it.
 
 ## Commands
 

@@ -9,6 +9,8 @@ import psutil
 from typing import TYPE_CHECKING, Callable
 
 import sensors
+from Xlib import display
+from Xlib.X import AnyPropertyType
 
 from mqttconsumer import MQTTConsumer
 
@@ -79,6 +81,17 @@ class HostSensors(MQTTConsumer):
                     f"{client.title()} X Server Idle Time",
                 )
             )
+        if self.config.get("sensors", "x_active_window", "false").lower() == "true":
+            self.sensors.append(
+                MQTTSensor(
+                    "active_window",
+                    f"{self.publish_topic}/active_window",
+                    "",
+                    "{{ value }}",
+                    self._get_active_window_process_x,
+                    f"{client.title()} Active Window",
+                )
+            )
 
         self.first_cpu_percent = True
 
@@ -92,6 +105,27 @@ class HostSensors(MQTTConsumer):
 
     def __del__(self):
         sensors.cleanup()
+
+    def _get_active_window_process_x(self):
+        try:
+            disp = display.Display()
+            root = disp.screen().root
+            window_id = root.get_full_property(disp.intern_atom('_NET_ACTIVE_WINDOW'), AnyPropertyType).value[0]
+            window = disp.create_resource_object('window', window_id)
+            pid = window.get_full_property(disp.intern_atom('_NET_WM_PID'), 0)
+            if pid:
+                pid = pid.value[0]
+                process = psutil.Process(pid)
+                process = f"{process.name()} ({process.status()})"
+            else:
+                process = None
+            wm_class = window.get_wm_class()[0]
+            if wm_class:
+                process = f"{wm_class} - {process}" if process else wm_class
+            return process
+        except Exception as e:
+            logger.warning(f"Error getting active window process: {e}")
+        return None
 
     def _get_cpu_temp(self):
         sensor = self.config.get("sensors", "cpu_temp_sensor", None)

@@ -23,3 +23,4 @@ cpu_temp = True
 cpu_temp_sensor = coretemp-isa-0000:Package id 0:temp1_input
 cpu_usage = True
 x_idle = True
+x_active_window = True
