@@ -27,6 +27,7 @@ class MQTTSensor:
     value_template: str
     value_func: Callable
     friendly_name: str
+    device_class: str = None
 
     @property
     def state_topic(self):
@@ -79,6 +80,7 @@ class HostSensors(MQTTConsumer):
                     "{{ value | int }}",
                     self._get_x_idle,
                     f"{client.title()} X Server Idle Time",
+                    device_class="duration",
                 )
             )
         if self.config.get("sensors", "x_active_window", "false").lower() == "true":
@@ -211,6 +213,8 @@ class HostSensors(MQTTConsumer):
                 "device": {"identifiers": [client_name], "name": client_name, "model": "Linux2MQTT"},
                 "availability_topic": self.availability_topic,
             }
+            if sensor.device_class:
+                payload["device_class"] = sensor.device_class
             mqtt_client.publish(topic, json.dumps(payload), retain=True)
 
     def on_disconnect(self, mqtt_client):
