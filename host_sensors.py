@@ -92,6 +92,7 @@ class HostSensors(MQTTConsumer):
                     "{{ value }}",
                     self._get_active_window_process_x,
                     f"{client.title()} Active Window",
+                    device_class="enum",
                 )
             )
 
