@@ -2,6 +2,7 @@ from __future__ import annotations
 import socket
 import json
 import subprocess
+import sys
 
 from dataclasses import dataclass
 from loguru import logger
@@ -189,6 +190,7 @@ class HostSensors(MQTTConsumer):
             output = subprocess.check_output(["xprintidle"]).strip()
         except Exception as e:
             logger.error(f"Error reading xprintidle: {e}")
+            sys.exit(1)
             return
         idle = int(output) / 1000
         logger.debug(f"X server idle: {idle} s")
